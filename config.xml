@@ -67,7 +67,4 @@
     <splash src="resources\android\splash\drawable-port-xxhdpi-screen.png" density="port-xxhdpi"/>
     <splash src="resources\android\splash\drawable-port-xxxhdpi-screen.png" density="port-xxxhdpi"/>
   </platform>
-  <icon src="icon.png"/>
-  <splash src="splash.png"/>
-  <splash src="splash.png" platform="ios" width="640" height="1136" />
 </widget>
