@@ -47,6 +47,7 @@
             <splash src="resources\ios\splash\Default@2x~iphone.png" width="640" height="960" />
             <splash src="resources\ios\splash\Default~iphone.png" width="320" height="480" />
         </platform>
+        <icon src="icon.png" />
         <!-- iPhone 6 / 6+ -->
         <icon src="resources\ios\icon\icon-60@3x.png" gap:platform="ios" width="180" height="180" />
         <!-- iPhone / iPod Touch  -->
@@ -61,6 +62,7 @@
         <!-- Spotlight Icon -->
         <icon src="resources\ios\icon\icon-40.png" gap:platform="ios" width="40" height="40" />
         <icon src="resources\ios\icon\icon-40@2x.png" gap:platform="ios" width="80" height="80" />
+        <gap:splash src="splash.png" />
         <!-- iPhone and iPod touch -->
         <gap:splash src="resources\ios\splash\Default.png" gap:platform="ios" width="320" height="480" />
         <gap:splash src="resources\ios\splash\Default@2x.png" gap:platform="ios" width="640" height="960" />
