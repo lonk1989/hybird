@@ -66,6 +66,26 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
     })
 
+    .state('tab.plan', {
+        url: '/home/plan',
+        views: {
+            'tab-home': {
+                templateUrl: 'templates/plan.html',
+                controller: 'PlanCtrl'
+            }
+        }
+    })
+
+    .state('tab.plan-logic', {
+        url: '/home/plan-logic/:id/:name',
+        views: {
+            'tab-home': {
+                templateUrl: 'templates/plan-logic.html',
+                controller: 'PlanLogicCtrl'
+            }
+        }
+    })
+
     .state('tab.act', {
         url: '/discover/act',
         views: {
