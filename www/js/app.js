@@ -8,7 +8,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.directives', 'LocalStorageModule'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $rootScope, $state) {
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -22,6 +22,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             StatusBar.styleLightContent();
         }
     });
+    $rootScope.$on('$stateChangeStart', function(event, next) {
+        Native.run('umengLog', ['view', 'detail', next.name]);
+    });
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -32,16 +35,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     // Each state's controller can be found in controllers.js
     $stateProvider
 
-        .state('login', {
-        url: '/login',
-        templateUrl: 'templates/login.html'
-    })
-
     // setup an abstract state for the tabs directive
-    .state('tab', {
+        .state('tab', {
         url: '/tab',
         abstract: true,
-        templateUrl: 'templates/tabs.html'
+        templateUrl: 'templates/tabs.html',
+        controller: 'TabCtrl'
     })
 
     // Each tab has its own nav history stack:
@@ -66,12 +65,182 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
     })
 
+    .state('tab.me', {
+        url: '/me',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/tab-me.html',
+                controller: 'MeCtrl'
+            }
+        }
+    })
+
+    .state('tab.service', {
+        url: '/me/service',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-service.html',
+                controller: 'ServiceCtrl'
+            }
+        }
+    })
+
+    .state('tab.reservation', {
+        url: '/me/reservation',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-reservation.html',
+                controller: 'ReservationCtrl'
+            }
+        }
+    })
+
+    .state('tab.doctor', {
+        url: '/me/doctor',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-doctor.html',
+                controller: 'DoctorCtrl'
+            }
+        }
+    })
+
+    .state('tab.doctor-info', {
+        url: '/me/doctor-info/:id',
+        views: {
+            'tab-me': {
+                templateUrl: "views/me-doctor-info.html",
+                controller: "DoctorInfoCtrl"
+            }
+        }
+    })
+
+    .state('tab.doctor-selected', {
+        url: '/me/doctor-selected/:id',
+        views: {
+            'tab-me': {
+                templateUrl: "views/me-doctor-selected.html",
+                controller: "DoctorSelectedCtrl"
+            }
+        }
+    })
+
+    .state('tab.succ', {
+        url: '/me/succ/:id',
+        views: {
+            'tab-me': {
+                templateUrl: "views/succ.html",
+                controller: "SuccCtrl"
+            }
+        }
+    })
+
+    .state('tab.assistant', {
+        url: '/me/assistant',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-assistant.html',
+                controller: 'AssistantCtrl'
+            }
+        }
+    })
+
+    .state('tab.wallet', {
+        url: '/me/wallet',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-wallet.html',
+                controller: 'WalletCtrl'
+            }
+        }
+    })
+
+    .state('tab.info', {
+        url: '/me/info',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-info.html',
+                controller: 'InfoCtrl'
+            }
+        }
+    })
+
+    .state('tab.qa', {
+        url: '/me/qa',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-qa.html',
+                controller: 'QaCtrl'
+            }
+        }
+    })
+
+    .state('tab.qa-detail', {
+        url: '/me/qa-detail:id',
+        views: {
+            'tab-me': {
+                templateUrl: 'templates/me-qa-detail.html',
+                controller: 'QaDetailCtrl'
+            }
+        }
+    })
+
+    .state('tab.tips', {
+        url: '/me/tips/:id',
+        views: {
+            'tab-me': {
+                templateUrl: "views/me-tips.html",
+                controller: "TipsCtrl"
+            }
+        }
+    })
+
+    .state('tab.rewardToMyDoctor', {
+        url: '/me/reward',
+        views: {
+            'tab-me': {
+                templateUrl: "views/me-reward.html",
+                controller: "RewardCtrl"
+            }
+        }
+    })
+
+    .state('tab.reward', {
+        url: '/me/reward/:id',
+        views: {
+            'tab-me': {
+                templateUrl: "views/me-reward.html",
+                controller: "RewardCtrl"
+            }
+        }
+    })
+
+    .state('tab.visit', {
+        url: '/me/visit',
+        views: {
+            'tab-me': {
+                templateUrl: "views/visit.html",
+                controller: "VisitCtrl"
+            }
+        }
+    })
+
     .state('tab.plan', {
         url: '/home/plan',
         views: {
             'tab-home': {
-                templateUrl: 'templates/plan.html',
+                templateUrl: 'templates/home-plan.html',
                 controller: 'PlanCtrl'
+            }
+        }
+    })
+
+    .state('tab.referral', {
+        url: '/home/referral',
+        views: {
+            'tab-home': {
+                templateUrl: 'templates/home-referral.html',
+                controller: 'ReferralCtrl'
             }
         }
     })
@@ -80,7 +249,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/home/plan-logic/:id/:name',
         views: {
             'tab-home': {
-                templateUrl: 'templates/plan-logic.html',
+                templateUrl: 'templates/home-plan-logic.html',
                 controller: 'PlanLogicCtrl'
             }
         }
@@ -90,7 +259,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/act',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/act.html',
+                templateUrl: 'templates/discover-act.html',
                 controller: 'ActCtrl'
             }
         }
@@ -100,7 +269,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/act/:id',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/act-detail.html',
+                templateUrl: 'templates/discover-act-detail.html',
                 controller: 'ActDetailCtrl'
             }
         }
@@ -110,7 +279,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/game',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/game.html',
+                templateUrl: 'templates/discover-game.html',
                 controller: 'GameCtrl'
             }
         }
@@ -120,7 +289,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/game/:id',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/game-detail.html',
+                templateUrl: 'templates/discover-game-detail.html',
                 controller: 'GameDetailCtrl'
             }
         }
@@ -130,7 +299,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/hospital',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/hospital.html',
+                templateUrl: 'templates/discover-hospital.html',
                 controller: 'HospitalCtrl'
             }
         }
@@ -140,7 +309,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/hospital/:id',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/hospital-detail.html',
+                templateUrl: 'templates/discover-hospital-detail.html',
                 controller: 'HospitalDetailCtrl'
             }
         }
@@ -150,7 +319,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/knowledge',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/knowledge.html',
+                templateUrl: 'templates/discover-knowledge.html',
                 controller: 'KnowledgeCtrl'
             }
         }
@@ -160,7 +329,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/knowledge/:id',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/knowledge-detail.html',
+                templateUrl: 'templates/discover-knowledge-detail.html',
                 controller: 'KnowledgeDetailCtrl'
             }
         }
@@ -170,7 +339,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/medicine',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/medicine.html',
+                templateUrl: 'templates/discover-medicine.html',
                 controller: 'MedicineCtrl'
             }
         }
@@ -180,7 +349,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/medicine/:id',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/medicine-detail.html',
+                templateUrl: 'templates/discover-medicine-detail.html',
                 controller: 'MedicineDetailCtrl'
             }
         }
@@ -190,7 +359,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/story',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/story.html',
+                templateUrl: 'templates/discover-story.html',
                 controller: 'StoryCtrl'
             }
         }
@@ -200,7 +369,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/discover/story/:id',
         views: {
             'tab-discover': {
-                templateUrl: 'templates/story-detail.html',
+                templateUrl: 'templates/discover-story-detail.html',
                 controller: 'StoryDetailCtrl'
             }
         }
@@ -264,4 +433,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
 .run(function($rootScope) {
     $rootScope.JAVA_URL = JAVA_URL;
+    $rootScope.ticket = ionic.Platform.isIOS() ? '元' : '张健康券';
+    $rootScope.isIOS = ionic.Platform.isIOS();
 })

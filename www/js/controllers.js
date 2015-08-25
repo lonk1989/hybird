@@ -1,11 +1,519 @@
 'use strict';
 angular.module('starter.controllers', [])
 
-.controller('LoginCtrl', function($scope) {})
+.controller('TabCtrl', function($scope, $state) {
+    $scope.open = function(state, params) {
+        $state.go(state, params);
+    };
+})
 
 .controller('HomeCtrl', function($scope) {})
 
+.controller('MeCtrl', function($scope) {})
+
 .controller('DiscoverCtrl', function($scope) {})
+
+.controller('ServiceCtrl', function($scope, ServiceServ) {
+    if (ionic.Platform.platform() === 'ios') {
+        $scope.img = function(id) {
+            switch (id) {
+                case 7:
+                    return '../img/1yuan.png';
+                case 8:
+                    return '../img/5yuan.png';
+                case 9:
+                    return '../img/10yuan.png';
+                default:
+                    return '../img/servicecase.png';
+            }
+        }
+        $scope.name = function(productName) {
+            switch (productName) {
+                case '鲜花':
+                    return '打赏1元';
+                case '锦旗':
+                    return '打赏5元';
+                case '奖杯':
+                    return '打赏10元';
+                default:
+                    return productName;
+            }
+        }
+    } else {
+        $scope.img = function(id) {
+            switch (id) {
+                case 7:
+                    return '../img/flower.png';
+                case 8:
+                    return '../img/flag.png';
+                case 9:
+                    return '../img/cup.png';
+                default:
+                    return '../img/servicecase.png';
+            }
+        }
+    }
+
+    ServiceServ.query().then(function(resp) {
+        $scope.serviceList = resp.data;
+    })
+})
+
+.controller('ReservationCtrl', function($scope, DoctorServ, ReservationServ) {
+    DoctorServ.reload().then(function(resp) {
+        $scope.doctor = resp;
+    });
+
+    ReservationServ.query().then(function(resp) {
+        $scope.reservationList = resp;
+    });
+})
+
+.controller('RewardCtrl', function($scope, $rootScope, $stateParams, $ionicPopup, DoctorServ, AssistantServ, RewardServ, $ionicModal) {
+    if ($rootScope.isIOS) {
+        document.getElementById('iosReward').style.display = 'block';
+    } else {
+        document.getElementById('androidReward').style.display = 'block';
+    }
+
+    if ($stateParams.id == 1) {
+        AssistantServ.reload().then(function(resp) {
+            $scope.doctor = resp;
+            $scope.rewardTarget = '个管师';
+        })
+    } else {
+        DoctorServ.reload().then(function(resp) {
+            $scope.doctor = resp;
+            $scope.rewardTarget = '医生';
+        })
+    }
+
+    var product = [{
+        name: '鲜花',
+        price: '1'
+    }, {
+        name: '锦旗',
+        price: '5'
+    }, {
+        name: '奖杯',
+        price: '10'
+    }]
+    $scope.product = product;
+    $scope.productCount = 1;
+    $scope.selectCount = '1';
+    $scope.index = 0;
+
+    $scope.reward = function(index) {
+        $scope.selectShow = true;
+        $scope.inputShow = false;
+        $scope.index = index;
+        switch (index) {
+            case 0:
+                $scope.img = '../img/flower.png';
+                $scope.productId = 7;
+                break;
+            case 1:
+                $scope.img = '../img/flag.png';
+                $scope.productId = 8;
+                break;
+            case 2:
+                $scope.img = '../img/cup.png';
+                $scope.productId = 9;
+                break;
+        }
+        rewardSet(index);
+    };
+
+    $scope.selectNum = function(num) {
+        if (num == '0') {
+            $scope.selectShow = false;
+            $scope.inputShow = true;
+            $scope.productCount = 1;
+            return;
+        }
+        $scope.selectCount = num;
+        $scope.productCount = parseInt(num);
+    };
+
+    function rewardSet(index) {
+        $ionicPopup.show({
+            // title: product[index].name + 'x1（' + product[index].price + $rootScope.ticket + '）',
+            templateUrl: 'selectCount-modal',
+            scope: $scope,
+            buttons: [{
+                text: '取消',
+                onTap: function(e) {
+                    $scope.selectCount = '1';
+                }
+            }, {
+                text: '打赏',
+                type: 'button-positive',
+                onTap: function(e) {
+                    if ($scope.productCount == null || typeof $scope.productCount == 'undefined') {
+                        e.preventDefault();
+                        $ionicPopup.alert({
+                            title: '请输入数字!',
+                        })
+                        return;
+                    }
+                    //提交打赏
+                    RewardServ.sendReward($scope.productId, $scope.productCount).then(function() {
+                        Native.run('umengLog', ['event', 'detail', 'RewardSuccess']);
+                        $ionicPopup.alert({
+                            title: '打赏成功!',
+                            template: ''
+                        }).then(function() {
+                            Native.run('goBack', []);
+                        })
+                    })
+
+                }
+            }]
+        });
+    }
+
+    $scope.rewardMoney = function(index) {
+        $scope.selectShow = true;
+        $scope.inputShow = false;
+        switch (index) {
+            case 0:
+                $scope.img = '../img/1yuan.png';
+                $scope.productId = 7;
+                break;
+            case 1:
+                $scope.img = '../img/5yuan.png';
+                $scope.productId = 8;
+                break;
+            case 2:
+                $scope.img = '../img/10yuan.png';
+                $scope.productId = 9;
+                break;
+        }
+        rewardMoneySet(index);
+    };
+
+    function rewardMoneySet(index) {
+        $ionicPopup.confirm({
+            title: '向' + $scope.rewardTarget + '打赏' + product[index].price + $rootScope.ticket,
+            template: '',
+            okText: '打赏',
+            cancelText: '取消'
+        }).then(function(res) {
+            if (res) {
+                //提交打赏
+                RewardServ.sendReward($scope.productId, $scope.productCount).then(function() {
+                    Native.run('umengLog', ['event', 'detail', 'RewardSuccess']);
+                    $ionicPopup.alert({
+                        title: '打赏成功!',
+                        template: ''
+                    }).then(function() {
+                        Native.run('goBack', []);
+                    })
+                })
+            }
+        })
+    }
+})
+
+.controller('DoctorCtrl', function($scope, $ionicListDelegate, $timeout, DoctorServ, CommentServ) {
+    DoctorServ.reload().then(function(resp) {
+        $scope.doctor = resp;
+    })
+    var userInfo = Native.getAuth();
+    CommentServ.reload(userInfo.doctorId, CommentServ.curPage).then(function(comment) {
+        $scope.comment = comment;
+        CommentServ.hasmore = comment.pagecount > CommentServ.curPage;
+    });
+
+    $scope.loadMore = function() {
+        //这里使用定时器是为了缓存一下加载过程，防止加载过快
+        $timeout(function() {
+            if (!CommentServ.hasmore) {
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+                return;
+            }
+            CommentServ.reload(resp.userid, CommentServ.curPage).then(function(response) {
+                CommentServ.hasmore = response.pagecount > CommentServ.curPage;
+                for (var i = 0; i < response.list.length; i++) {
+                    $scope.comment.list.push(response.list[i]);
+                }
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+                CommentServ.curPage++;
+            });
+        }, 1000);
+    };
+    $scope.moreDataCanBeLoaded = function() {
+        return CommentServ.hasmore;
+    }
+    $scope.$on('stateChangeSuccess', function() {
+        $scope.loadMore();
+    });
+    $ionicListDelegate.showReorder(true);
+
+    $scope.rate = function(modeid, userid, nickname) {
+        Native.run('rate', [modeid, userid, nickname]);
+        Native.run('umengLog', ['event', 'detail', 'rate']);
+    }
+
+    $scope.changeDoctor = function() {
+        Native.run('changeDoctor', []);
+        Native.run('umengLog', ['event', 'detail', 'changeDoctor']);
+    }
+})
+
+.controller('DoctorInfoCtrl', function($scope, $stateParams, $ionicListDelegate, $timeout, DoctorServ, CommentServ) {
+    DoctorServ.reloadById($stateParams.id).then(function(resp) {
+        $scope.doctor = resp;
+
+    })
+
+    CommentServ.reload($stateParams.id, CommentServ.curPage).then(function(comment) {
+        $scope.comment = comment;
+        CommentServ.hasmore = comment.pagecount > CommentServ.curPage;
+    });
+
+    $scope.loadMore = function() {
+        //这里使用定时器是为了缓存一下加载过程，防止加载过快
+        $timeout(function() {
+            if (!CommentServ.hasmore) {
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+                return;
+            }
+            CommentServ.reload(resp.userid, CommentServ.curPage).then(function(response) {
+                CommentServ.hasmore = response.pagecount > CommentServ.curPage;
+                for (var i = 0; i < response.list.length; i++) {
+                    $scope.comment.list.push(response.list[i]);
+                }
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+                CommentServ.curPage++;
+            });
+        }, 1000);
+    };
+    $scope.moreDataCanBeLoaded = function() {
+        return CommentServ.hasmore;
+    }
+    $scope.$on('stateChangeSuccess', function() {
+        $scope.loadMore();
+    });
+    $ionicListDelegate.showReorder(true);
+})
+
+.controller('DoctorSelectedCtrl', function($scope, $rootScope, $stateParams, $ionicPopup, $location, DoctorServ) {
+    $scope.canChangeDoctor = true;
+    DoctorServ.reloadById($stateParams.id).then(function(doctor) {
+        $scope.doctor = doctor;
+        DoctorServ.changeDoctorCheck().then(function(price) {
+            $scope.canChangeDoctor = false;
+            $scope.changeDoctor = function() {
+                $ionicPopup.prompt({
+                    title: '选择医生需要支付' + price.price + $rootScope.ticket,
+                    template: '请输入密码',
+                    inputType: 'password',
+                    okText: '确认',
+                    cancelText: '取消'
+                }).then(function(res) {
+                    if (typeof res != 'undefined') {
+                        Native.run('event', 'detail', 'ChangeDoctorSuccess')
+                        DoctorServ.changeDoctor(doctor.userid, doctor.username, doctor.nickname, res).then(function(resp) {
+                            $location.path('tab/me/succ/' + $stateParams.id)
+                        })
+                    }
+                });
+            }
+        })
+    })
+})
+
+.controller('SuccCtrl', function($scope, $stateParams, DoctorServ) {
+    DoctorServ.reloadById($stateParams.id).then(function(doctor) {
+        $scope.doctor = doctor;
+    });
+
+    $scope.changeDoctorSucc = function() {
+        Native.run('changeDoctorSucc', []);
+    }
+})
+
+.controller('AssistantCtrl', function($scope, $ionicListDelegate, $timeout, AssistantServ, CommentServ) {
+    AssistantServ.reload().then(function(resp) {
+        $scope.assistant = resp;
+    })
+    var userInfo = Native.getAuth();
+    CommentServ.reload(userInfo.assistantId, CommentServ.curPage).then(function(comment) {
+        $scope.comment = comment;
+        CommentServ.hasmore = comment.pagecount > CommentServ.curPage;
+    });
+
+    $scope.loadMore = function() {
+        //这里使用定时器是为了缓存一下加载过程，防止加载过快
+        $timeout(function() {
+            if (!CommentServ.hasmore) {
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+                return;
+            }
+            CommentServ.reload(resp.userid, CommentServ.curPage).then(function(response) {
+                CommentServ.hasmore = response.pagecount > CommentServ.curPage;
+                for (var i = 0; i < response.list.length; i++) {
+                    $scope.comment.list.push(response.list[i]);
+                }
+                $scope.$broadcast('scroll.infiniteScrollComplete');
+                CommentServ.curPage++;
+            });
+        }, 1000);
+    };
+    $scope.moreDataCanBeLoaded = function() {
+        return CommentServ.hasmore;
+    }
+    $scope.$on('stateChangeSuccess', function() {
+        $scope.loadMore();
+    });
+    $ionicListDelegate.showReorder(true);
+
+    $scope.rate = function(modeid, userid, nickname) {
+        Native.run('rate', [modeid, userid, nickname]);
+        Native.run('umengLog', ['event', 'detail', 'rate']);
+    }
+})
+
+.controller('WalletCtrl', function($scope, RechargeServ) {
+    RechargeServ.reload().then(function(resp) {
+        $scope.rechargeList = resp;
+    })
+
+    $scope.recharge = function() {
+        Native.run('recharge', []);
+        Native.run('umengLog', ['event', 'detail', 'Recharge']);
+    }
+})
+
+.controller('InfoCtrl', function($scope, PatientServ) {
+    PatientServ.reload().then(function(resp) {
+        $scope.patient = resp
+    });
+    $scope.maxDate = new Date();
+    $scope.editState = true;
+    $scope.cancelState = false;
+    $scope.editButton = false;
+    $scope.infoEdit = function() {
+        $scope.editState = false;
+        $scope.editButton = true;
+        $scope.cancelState = true;
+    };
+    $scope.cancelEdit = function() {
+        $scope.editState = true;
+        $scope.cancelState = false;
+        $scope.editButton = false;
+        $scope.patient = localStorageService.get('patient');
+    };
+
+    $scope.updateUser = function(nickname, sex, birthday, is_own, disease, realname, telphone) {
+        Native.run('umengLog', ['event', 'detail', 'UpdatePatientInfo'])
+        PatientServ.update(nickname, sex, birthday, is_own, disease, realname, telphone).then(function() {
+            $ionicPopup.alert({
+                title: '修改成功!',
+                template: ''
+            }).then(function() {
+                Native.run('updatePatientName', [nickname, realname]);
+                PatientServ.reload();
+                Native.run('historyBack', []);
+            })
+        })
+    }
+})
+
+.controller('TipsCtrl', function($scope, $stateParams, $ionicHistory, localStorageService, TipsServ) {
+    TipsServ.query($stateParams.id).then(function(resp) {
+        document.getElementById('remark').innerHTML = resp.remark.replace(/<img src="/g, '<img src="' + JAVA_URL);
+    });
+
+    $scope.share = function() {
+        Native.run('umengLog', ['event', 'detail', 'ShareTips']);
+        Native.run('share', []);
+    }
+
+    if (localStorageService.get('auth') == null) {
+        $scope.noHeader = false;
+        $scope.noHeaderStyle = {
+            top: 0
+        };
+    } else {
+        $scope.noHeader = true;
+        $scope.noHeaderStyle = {};
+    }
+})
+
+.controller('VisitCtrl', function($scope, $rootScope, $ionicPopup, localStorageService, DoctorServ, PatientServ) {
+    var userInfo = Native.getAuth();
+    var today = Date.now(),
+        day = [];
+    var distance = new Date().getDay() - 1;
+    distance = distance == -1 ? 6 : distance;
+    $scope.weekday = distance + 1;
+    $scope.afternoon = new Date().getHours() > 12;
+    day[0] = new Date(today + (3600 * 24 * (0 - distance) * 1000)).format('MM月dd日');
+    day[1] = new Date(today + (3600 * 24 * (6 - distance) * 1000)).format('dd日');
+    day[2] = new Date(today + (3600 * 24 * (7 - distance) * 1000)).format('MM月dd日');
+    day[3] = new Date(today + (3600 * 24 * (13 - distance) * 1000)).format('dd日');
+
+    $scope.week1 = day[0] + '~' + day[1];
+    $scope.week2 = day[2] + '~' + day[3];
+
+    DoctorServ.querySchedule().then(function(resp) {
+        $scope.schedule = resp.data;
+        if ((resp.data.next_weeks === '0,0|0,0|0,0|0,0|0,0|0,0|0,0' && resp.data.this_weeks === '0,0|0,0|0,0|0,0|0,0|0,0|0,0') || resp.data.limitPeoples == 0) {
+            $ionicPopup.alert({
+                title: userInfo.doctorNickName + '医生尚未开放预约加号',
+                template: '您可以通过医生的患友群里或找对应个管师进行询问'
+            })
+        }
+    });
+
+    $scope.choose = function(week, sxw, active) {
+        if (active) {
+            $scope.selected = {
+                week: week,
+                sxw: sxw,
+                selectedDate: new Date(today + (3600 * 24 * (0 - distance + week - 1) * 1000)).format('yyyy-MM-dd hh:mm:ss')
+            }
+        }
+    }
+
+    $scope.reserve = function(amOrPm, subscribeTime, price) {
+        $ionicPopup.prompt({
+            title: '请输入密码',
+            template: '支付' + price + $rootScope.ticket,
+            inputType: 'password',
+            okText: '确认',
+            cancelText: '取消'
+        }).then(function(res) {
+            if (typeof res != 'undefined') {
+                Native.run('event', 'detail', 'ReserveSuccess')
+                DoctorServ.updateReserve(amOrPm, subscribeTime, res).then(function(resp) {
+                    $ionicPopup.alert({
+                        title: '预约成功!',
+                        template: ''
+                    });
+                })
+            }
+        });
+    }
+})
+
+.controller('QaCtrl', function($scope, QaServ) {
+    QaServ.reload().then(function(resp) {
+        $scope.qaList = resp.list;
+    })
+})
+
+.controller('QaDetailCtrl', function($scope, $stateParams, QaServ) {
+    $scope.location = 'http://ag.furuihui.com/article.php?id=' + $stateParams.id;
+})
+
+.controller('ReferralCtrl', function($scope, ReferralServ) {
+    ReferralServ.reload().then(function(resp) {
+        $scope.table = resp;
+    })
+})
 
 .controller('PlanCtrl', function($scope, PlanServ) {
     PlanServ.reload().then(function(resp) {
@@ -16,7 +524,7 @@ angular.module('starter.controllers', [])
 .controller('PlanLogicCtrl', function($scope, $stateParams, PlanServ) {
     $scope.tit = $stateParams.name;
     $scope.currDate = Date.now();
-    $scope.setDate = new Date(Date.now() + 3600*24*7*2*1000);
+    $scope.setDate = new Date(Date.now() + 3600 * 24 * 7 * 2 * 1000);
     var _logicList = [];
     PlanServ.reloadLogic($stateParams.id).then(function(resp) {
         _logicList = JSON.parse(resp[0].optionData);
@@ -37,11 +545,13 @@ angular.module('starter.controllers', [])
     }
 
     $scope.submit = function() {
-        document.getElementById('referralDate').focus()
+        PlanServ.joinPlan(productCode, visitTime, resultJosn).then(function(resp) {
+            console.log('join success')
+        })
     }
-    
+
     function _findLogic(titNum) {
-        for(var i in _logicList) {
+        for (var i in _logicList) {
             if (titNum === _logicList[i].titNum) {
                 return _logicList[i];
             }
