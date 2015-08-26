@@ -215,11 +215,11 @@ angular.module('starter.services', [])
             }
         },
         reload: function() {
-            var auth = (typeof AUTH !== 'undefined') ? AUTH : localStorageService.get('auth');
             var deferred = $q.defer();
+            var userInfo = Native.getAuth('patient');
             $ionicLoading.show();
             $http.post(PHP_URL + 'huanzhe/get_mydoctor.json', {
-                    auth: auth
+                    auth: userInfo.auth
                 })
                 .success(function(resp) {
                     if (resp.status === 'success') {
@@ -257,11 +257,11 @@ angular.module('starter.services', [])
             }
         },
         reloadById: function(id) {
-            var auth = (typeof AUTH !== 'undefined') ? AUTH : localStorageService.get('auth');
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $ionicLoading.show();
             $http.post(PHP_URL + 'appApi/get_user_info_byid.json', {
-                    auth: auth,
+                    auth: userInfo.auth,
                     userid: id
                 })
                 .success(function(resp) {
@@ -291,7 +291,7 @@ angular.module('starter.services', [])
         },
         querySchedule: function() {
             var deferred = $q.defer();
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             $http.post(JAVA_URL + 'product/app/getDoctorSchedule.htm', {
                     sign: '7aca512be3b2bd84e98198f5a3886f09',
                     doctorId: userInfo.doctorId
@@ -321,7 +321,7 @@ angular.module('starter.services', [])
         updateReserve: function(amOrPm, subscribeTime, userPwd) {
             $ionicLoading.show();
             var deferred = $q.defer();
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             var today = new Date();
             $http.post(JAVA_URL + 'product/app/saveSubscribeDetail.htm', {
                     sign: 'e2642229d04a59d2def93c490a00162f',
@@ -373,7 +373,7 @@ angular.module('starter.services', [])
         },
         changeDoctorCheck: function() {
             $ionicLoading.show();
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             var today = new Date();
             $http.post(JAVA_URL + 'product/app/changeDoctorCheck.htm', {
@@ -406,7 +406,7 @@ angular.module('starter.services', [])
         },
         changeDoctor: function(newDoctorId, newDoctorName, newDoctorNickName, userPwd) {
             $ionicLoading.show();
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $http.post(JAVA_URL + 'product/app/patientChangeDoctor.htm', {
                     auth: userInfo.auth,
@@ -474,11 +474,11 @@ angular.module('starter.services', [])
             }
         },
         reload: function() {
-            var auth = (typeof AUTH !== 'undefined') ? AUTH : localStorageService.get('auth');
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $ionicLoading.show();
             $http.post(PHP_URL + 'appApi/get_user_info.json', {
-                    auth: auth
+                    auth: userInfo.auth
                 })
                 .success(function(resp) {
                     console.log(resp)
@@ -506,12 +506,12 @@ angular.module('starter.services', [])
             return deferred.promise;
         },
         update: function(nickname, sex, birthday, is_own, disease, realname, telphone) {
-            var auth = (typeof AUTH !== 'undefined') ? AUTH : localStorageService.get('auth');
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             var formatBirthday = new Date(birthday).format('yyyy-MM-dd');
             $ionicLoading.show();
             $http.post(PHP_URL + 'huanzhe/change_info.json', {
-                    auth: auth,
+                    auth: userInfo.auth,
                     nickname: nickname,
                     sex: sex,
                     birthday: formatBirthday,
@@ -559,11 +559,11 @@ angular.module('starter.services', [])
             }
         },
         reload: function() {
-            var auth = (typeof AUTH !== 'undefined') ? AUTH : localStorageService.get('auth');
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $ionicLoading.show();
             $http.post(PHP_URL + 'huanzhe/get_myzhuli.json', {
-                    auth: auth
+                    auth: userInfo.auth
                 })
                 .success(function(resp) {
                     if (resp.status === 'success') {
@@ -607,7 +607,7 @@ angular.module('starter.services', [])
         },
         reload: function() {
             var deferred = $q.defer();
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             $ionicLoading.show();
             $http.post(JAVA_URL + 'account/app/rechargeDetailPage.htm', {
                     sign: 'c271a28eeb17d04662d7b6b82dd03ee1',
@@ -650,7 +650,7 @@ angular.module('starter.services', [])
 .factory('ServiceServ', function($http, $q, $ionicPopup, localStorageService) {
     return {
         query: function() {
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $http.post(JAVA_URL + 'product/app/getBuyProductServiceByPatientId.htm', {
                     patientId: userInfo.patientId,
@@ -683,7 +683,7 @@ angular.module('starter.services', [])
 .factory('ReservationServ', function($http, $q, $ionicPopup, localStorageService) {
     return {
         query: function() {
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $http.post(JAVA_URL + 'product/app/getSubscribeListByPatientId.htm', {
                     patientId: userInfo.patientId,
@@ -720,7 +720,7 @@ angular.module('starter.services', [])
     return {
         sendReward: function(productId, productCount) {
             $ionicLoading.show();
-            var userInfo = Native.getAuth();
+            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $http.post(JAVA_URL + 'product/app/buyAdmireProduct.htm', {
                     sign: '71c3756cdf32389e2d0a172099f4e0d6',
@@ -805,14 +805,14 @@ angular.module('starter.services', [])
 })
 
 .factory('CommentServ', function($http, $q, $ionicPopup, $ionicLoading, localStorageService) {
-    var auth = (typeof AUTH !== 'undefined') ? AUTH : localStorageService.get('auth');
+    var userInfo = Native.getAuth('patient');
     return {
         hasmore: true,
         curPage: 1,
         reload: function(id, page) {
             var deferred = $q.defer();
             $http.post(MSG_URL + 'app_api/get_comment_list', {
-                    auth: auth,
+                    auth: userInfo.auth,
                     userid: id,
                     page: page
                 })

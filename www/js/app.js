@@ -15,7 +15,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
             cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
             cordova.plugins.Keyboard.disableScroll(true);
-
+            Native.run('getAuth', []);
         }
         if (window.StatusBar) {
             // org.apache.cordova.statusbar required
@@ -25,6 +25,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     $rootScope.$on('$stateChangeStart', function(event, next) {
         Native.run('umengLog', ['view', 'detail', next.name]);
     });
+})
+
+.config(function($sceDelegateProvider) {
+   $sceDelegateProvider.resourceUrlWhitelist([
+       // Allow same origin resource loads.
+       'self',
+       // Allow loading from our assets domain.  Notice the difference between * and **.
+       'http://ag.furuihui.com/**']);
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -109,7 +117,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/me/doctor-info/:id',
         views: {
             'tab-me': {
-                templateUrl: "views/me-doctor-info.html",
+                templateUrl: "templates/me-doctor-info.html",
                 controller: "DoctorInfoCtrl"
             }
         }
@@ -119,7 +127,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/me/doctor-selected/:id',
         views: {
             'tab-me': {
-                templateUrl: "views/me-doctor-selected.html",
+                templateUrl: "templates/me-doctor-selected.html",
                 controller: "DoctorSelectedCtrl"
             }
         }
@@ -129,7 +137,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/me/succ/:id',
         views: {
             'tab-me': {
-                templateUrl: "views/succ.html",
+                templateUrl: "templates/me-succ.html",
                 controller: "SuccCtrl"
             }
         }
@@ -189,7 +197,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/me/tips/:id',
         views: {
             'tab-me': {
-                templateUrl: "views/me-tips.html",
+                templateUrl: "templates/me-tips.html",
                 controller: "TipsCtrl"
             }
         }
@@ -199,7 +207,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/me/reward',
         views: {
             'tab-me': {
-                templateUrl: "views/me-reward.html",
+                templateUrl: "templates/me-reward.html",
                 controller: "RewardCtrl"
             }
         }
@@ -209,7 +217,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/me/reward/:id',
         views: {
             'tab-me': {
-                templateUrl: "views/me-reward.html",
+                templateUrl: "templates/me-reward.html",
                 controller: "RewardCtrl"
             }
         }
@@ -219,7 +227,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/me/visit',
         views: {
             'tab-me': {
-                templateUrl: "views/visit.html",
+                templateUrl: "templates/me-visit.html",
                 controller: "VisitCtrl"
             }
         }

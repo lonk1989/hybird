@@ -7,7 +7,8 @@ angular.module('starter.controllers', [])
     };
 })
 
-.controller('HomeCtrl', function($scope) {})
+.controller('HomeCtrl', function($scope) {
+})
 
 .controller('MeCtrl', function($scope) {})
 
@@ -219,7 +220,7 @@ angular.module('starter.controllers', [])
     DoctorServ.reload().then(function(resp) {
         $scope.doctor = resp;
     })
-    var userInfo = Native.getAuth();
+    var userInfo = Native.getAuth('patient');
     CommentServ.reload(userInfo.doctorId, CommentServ.curPage).then(function(comment) {
         $scope.comment = comment;
         CommentServ.hasmore = comment.pagecount > CommentServ.curPage;
@@ -313,7 +314,7 @@ angular.module('starter.controllers', [])
                     cancelText: '取消'
                 }).then(function(res) {
                     if (typeof res != 'undefined') {
-                        Native.run('event', 'detail', 'ChangeDoctorSuccess')
+                        Native.run('umengLog' ['event', 'detail', 'ChangeDoctorSuccess'])
                         DoctorServ.changeDoctor(doctor.userid, doctor.username, doctor.nickname, res).then(function(resp) {
                             $location.path('tab/me/succ/' + $stateParams.id)
                         })
@@ -338,7 +339,7 @@ angular.module('starter.controllers', [])
     AssistantServ.reload().then(function(resp) {
         $scope.assistant = resp;
     })
-    var userInfo = Native.getAuth();
+    var userInfo = Native.getAuth('patient');
     CommentServ.reload(userInfo.assistantId, CommentServ.curPage).then(function(comment) {
         $scope.comment = comment;
         CommentServ.hasmore = comment.pagecount > CommentServ.curPage;
@@ -386,7 +387,7 @@ angular.module('starter.controllers', [])
     }
 })
 
-.controller('InfoCtrl', function($scope, PatientServ) {
+.controller('InfoCtrl', function($scope, $ionicPopup, PatientServ) {
     PatientServ.reload().then(function(resp) {
         $scope.patient = resp
     });
@@ -443,7 +444,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('VisitCtrl', function($scope, $rootScope, $ionicPopup, localStorageService, DoctorServ, PatientServ) {
-    var userInfo = Native.getAuth();
+    var userInfo = Native.getAuth('patient');
     var today = Date.now(),
         day = [];
     var distance = new Date().getDay() - 1;
@@ -487,7 +488,7 @@ angular.module('starter.controllers', [])
             cancelText: '取消'
         }).then(function(res) {
             if (typeof res != 'undefined') {
-                Native.run('event', 'detail', 'ReserveSuccess')
+                Native.run('umengLog', ['event', 'detail', 'ReserveSuccess'])
                 DoctorServ.updateReserve(amOrPm, subscribeTime, res).then(function(resp) {
                     $ionicPopup.alert({
                         title: '预约成功!',

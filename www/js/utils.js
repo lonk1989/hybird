@@ -12,15 +12,20 @@
             _nativeProxy(funcName, paramArr);
         }
 
-        function _nativeProxy(func, params) {
+        function _nativeProxy(func, paramArr, callback) {
             var platform = _getPlatform();
             switch (platform) {
                 case 'ios':
-                    console.log('ios://' + func + '/' + params.join('/'))
-                    window.location.href = 'ios://' + func + '/' + params.join('/');
+                    // window.location.href = 'ios://' + func + '/' + paramArr.join('/');
+                    cordova.exec(callback, function(err) {
+                        callback('Nothing to echo.');
+                    }, "NativeViewPlugin", func, paramArr);
                     break;
                 case 'android':
-                    Device[func].apply(this, params);
+                    // Device[func].apply(this, paramArr);
+                    cordova.exec(callback, function(err) {
+                        callback('Nothing to echo.');
+                    }, "NativeViewPlugin", func, paramArr);
                     break;
                 default:
                     console.log('now is webview.');
@@ -46,15 +51,13 @@
                     userInfo.doctorName = localStorage.getItem(prefix + '.doctorName')
                     userInfo.doctorNickName = localStorage.getItem(prefix + '.doctorNickName')
                     userInfo.assistantId = localStorage.getItem(prefix + '.assistantId')
-                    userInfo.assistantName = localStorage.getItem(prefix + '.assistantName')
-                    userInfo.assistantNickName = localStorage.getItem(prefix + '.assistantNickName')
                     break;
-                case 'docotr':
+                case 'doctor':
                     userInfo.auth = localStorage.getItem(prefix + '.auth')
                     userInfo.doctorId = localStorage.getItem(prefix + '.doctorId')
                     userInfo.doctorName = localStorage.getItem(prefix + '.doctorName')
                     userInfo.doctorNickName = localStorage.getItem(prefix + '.doctorNickName')
-                    userInfo.assistantId = localStorage.getItem(prefix + '.doctorId')
+                    userInfo.assistantId = localStorage.getItem(prefix + '.assistantId')
                     break;
                 case 'assistant':
                     userInfo.auth = localStorage.getItem(prefix + '.auth')
