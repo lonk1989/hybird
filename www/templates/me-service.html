@@ -1,4 +1,7 @@
 <ion-view view-title="我的订单">
+    <ion-nav-buttons side="left">
+        <button class="button button-clear icon" ng-class="{false :'ion-android-arrow-back', true: 'ion-ios-arrow-back'}[isIOS]" ng-show="showHistoryBack" ng-click="historyBack()"></button>
+    </ion-nav-buttons>
     <ion-content class="main">
         <div class="list">
 		    <a class="item item-avatar" ng-repeat="service in serviceList">
@@ -9,5 +12,6 @@
 		    </a>
 
 		</div>
+        <p class="empty-title" ng-hide="serviceList.length>0">暂无任何记录</p>
     </ion-content>
 </ion-view>

@@ -5,32 +5,33 @@ angular.module('starter.services', [])
     return {
         reload: function() {
             var deferred = $q.defer();
-            var userInfo = Native.getAuth('patient');
-            $http.post(JAVA_URL + 'product/app/getTreatmentPlanHistoryList.htm', {
-                    sign: 'fe3c2ea9dbe6229675aaa3c04300e314',
-                    patientId: userInfo.patientId,
-                    page: 1,
-                    rows: 9999
-                })
-                .success(function(resp) {
-                    if (resp.code === '0') {
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/getTreatmentPlanHistoryList.htm', {
+                        sign: 'fe3c2ea9dbe6229675aaa3c04300e314',
+                        patientId: userInfo.patientId,
+                        page: 1,
+                        rows: 9999
+                    })
+                    .success(function(resp) {
+                        if (resp.code === '0') {
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                    })
+                    .error(function(resp) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                })
-                .error(function(resp) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                })
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -95,44 +96,45 @@ angular.module('starter.services', [])
             return deferred.promise;
         },
         joinPlan: function(productCode, visitTime, resultJson) {
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $ionicLoading.show();
-            $http.post(JAVA_URL + 'product/app/joinTreatmentPlanNew.htm', {
-                    sign: 'be8f9704bd12f7f5444dc013f4faa15b',
-                    auth: userInfo.auth,
-                    doctorId: userInfo.doctorId,
-                    doctorName: userInfo.doctorName,
-                    doctorNickName: userInfo.doctorNickName,
-                    patientId: userInfo.patientId,
-                    patientName: userInfo.patientName,
-                    patientNickName: userInfo.patientNickName,
-                    productCode: productCode,
-                    visitTime: visitTime,
-                    resultJson: resultJson,
-                    userPwd: ''
-                })
-                .success(function(resp) {
-                    if (resp.code === '0') {
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/joinTreatmentPlanNew.htm', {
+                        sign: 'be8f9704bd12f7f5444dc013f4faa15b',
+                        auth: userInfo.auth,
+                        doctorId: userInfo.doctorId,
+                        doctorName: userInfo.doctorName,
+                        doctorNickName: userInfo.doctorNickName,
+                        patientId: userInfo.patientId,
+                        patientName: userInfo.patientName,
+                        patientNickName: userInfo.patientNickName,
+                        productCode: productCode,
+                        visitTime: visitTime,
+                        resultJson: resultJson,
+                        userPwd: ''
+                    })
+                    .success(function(resp) {
+                        if (resp.code === '0') {
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -216,33 +218,35 @@ angular.module('starter.services', [])
         },
         reload: function() {
             var deferred = $q.defer();
-            var userInfo = Native.getAuth('patient');
             $ionicLoading.show();
-            $http.post(PHP_URL + 'huanzhe/get_mydoctor.json', {
-                    auth: userInfo.auth
-                })
-                .success(function(resp) {
-                    if (resp.status === 'success') {
-                        localStorageService.set('doctor', resp.data);
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(PHP_URL + 'huanzhe/get_mydoctor.json', {
+                        auth: userInfo.auth
+                    })
+                    .success(function(resp) {
+                        if (resp.status === 'success') {
+                            localStorageService.set('doctor', resp.data);
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+
+            });
             return deferred.promise;
         },
         loadById: function(id) {
@@ -257,203 +261,208 @@ angular.module('starter.services', [])
             }
         },
         reloadById: function(id) {
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $ionicLoading.show();
-            $http.post(PHP_URL + 'appApi/get_user_info_byid.json', {
-                    auth: userInfo.auth,
-                    userid: id
-                })
-                .success(function(resp) {
-                    if (resp.status === 'success') {
-                        var ls = 'doctor' + id;
-                        localStorageService.set(ls, resp.data);
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(PHP_URL + 'appApi/get_user_info_byid.json', {
+                        auth: userInfo.auth,
+                        userid: id
+                    })
+                    .success(function(resp) {
+                        if (resp.status === 'success') {
+                            var ls = 'doctor' + id;
+                            localStorageService.set(ls, resp.data);
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         },
         querySchedule: function() {
             var deferred = $q.defer();
-            var userInfo = Native.getAuth('patient');
-            $http.post(JAVA_URL + 'product/app/getDoctorSchedule.htm', {
-                    sign: '7aca512be3b2bd84e98198f5a3886f09',
-                    doctorId: userInfo.doctorId
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.code === '0') {
-                        localStorageService.set('schedule', resp.data);
-                        deferred.resolve(resp);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/getDoctorSchedule.htm', {
+                        sign: '7aca512be3b2bd84e98198f5a3886f09',
+                        doctorId: userInfo.doctorId
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.code === '0') {
+                            localStorageService.set('schedule', resp.data);
+                            deferred.resolve(resp);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
+                        }
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                })
+                    })
+            });
             return deferred.promise;
         },
         updateReserve: function(amOrPm, subscribeTime, userPwd) {
             $ionicLoading.show();
             var deferred = $q.defer();
-            var userInfo = Native.getAuth('patient');
             var today = new Date();
-            $http.post(JAVA_URL + 'product/app/saveSubscribeDetail.htm', {
-                    sign: 'e2642229d04a59d2def93c490a00162f',
-                    doctorId: userInfo.doctorId,
-                    doctorName: userInfo.doctorName,
-                    doctorNickName: userInfo.doctorNickName,
-                    patientId: userInfo.patientId,
-                    patientName: userInfo.patientName,
-                    patientNickName: userInfo.patientRealName,
-                    amOrPm: amOrPm,
-                    subscribeTime: subscribeTime,
-                    userPwd: userPwd
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.code === '0') {
-                        deferred.resolve(resp);
-                    } else if (resp.code === '400010') {
-                        Native.run('umengLog', ['event', 'detail', 'InsufficientBalance']);
-                        deferred.reject(resp)
-                        $ionicPopup.confirm({
-                            title: '余额不足',
-                            template: '',
-                            okText: '充值',
-                            cancelText: '取消'
-                        }).then(function(res) {
-                            if (res) {
-                                Native.run('recharge', []);
-                                Native.run('umengLog', ['event', 'detail', 'Recharge']);
-                            }
-                        });
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/saveSubscribeDetail.htm', {
+                        sign: 'e2642229d04a59d2def93c490a00162f',
+                        doctorId: userInfo.doctorId,
+                        doctorName: userInfo.doctorName,
+                        doctorNickName: userInfo.doctorNickName,
+                        patientId: userInfo.patientId,
+                        patientName: userInfo.patientName,
+                        patientNickName: userInfo.patientRealName,
+                        amOrPm: amOrPm,
+                        subscribeTime: subscribeTime,
+                        userPwd: userPwd
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.code === '0') {
+                            deferred.resolve(resp);
+                        } else if (resp.code === '400010') {
+                            Native.run('umengLog', ['event', 'detail', 'InsufficientBalance']);
+                            deferred.reject(resp)
+                            $ionicPopup.confirm({
+                                title: '余额不足',
+                                template: '',
+                                okText: '充值',
+                                cancelText: '取消'
+                            }).then(function(res) {
+                                if (res) {
+                                    Native.run('recharge', []);
+                                    Native.run('umengLog', ['event', 'detail', 'Recharge']);
+                                }
+                            });
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力，调整到一个信号好的方向再试一下吧',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力，调整到一个信号好的方向再试一下吧',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         },
         changeDoctorCheck: function() {
             $ionicLoading.show();
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             var today = new Date();
-            $http.post(JAVA_URL + 'product/app/changeDoctorCheck.htm', {
-                    sign: '28a205d33693b6bb9be3871c7c5c379d',
-                    patientId: userInfo.patientId,
-                    patientName: userInfo.patientName
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.code === '0') {
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/changeDoctorCheck.htm', {
+                        sign: '28a205d33693b6bb9be3871c7c5c379d',
+                        patientId: userInfo.patientId,
+                        patientName: userInfo.patientName
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.code === '0') {
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         },
         changeDoctor: function(newDoctorId, newDoctorName, newDoctorNickName, userPwd) {
             $ionicLoading.show();
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
-            $http.post(JAVA_URL + 'product/app/patientChangeDoctor.htm', {
-                    auth: userInfo.auth,
-                    sign: '44d4270a42b15958ca0fadb147411c56',
-                    patientId: userInfo.patientId,
-                    patientName: userInfo.patientName,
-                    patientNickName: userInfo.patientNickName,
-                    ndoctorId: userInfo.doctorId,
-                    cdoctorId: newDoctorId,
-                    doctorName: newDoctorName,
-                    doctorNickName: newDoctorNickName,
-                    userPwd: userPwd
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.code === '0') {
-                        deferred.resolve(resp.data);
-                    } else if (resp.code === '400010') {
-                        Native.run('umengLog', ['event', 'detail', 'InsufficientBalance']);
-                        deferred.reject(resp)
-                        $ionicPopup.confirm({
-                            title: '余额不足',
-                            template: '',
-                            okText: '充值',
-                            cancelText: '取消'
-                        }).then(function(res) {
-                            if (res) {
-                                Native.run('recharge', []);
-                                Native.run('umengLog', ['event', 'detail', 'Recharge']);
-                            }
-                        });
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/patientChangeDoctor.htm', {
+                        auth: userInfo.auth,
+                        sign: '44d4270a42b15958ca0fadb147411c56',
+                        patientId: userInfo.patientId,
+                        patientName: userInfo.patientName,
+                        patientNickName: userInfo.patientNickName,
+                        ndoctorId: userInfo.doctorId,
+                        cdoctorId: newDoctorId,
+                        doctorName: newDoctorName,
+                        doctorNickName: newDoctorNickName,
+                        userPwd: userPwd
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.code === '0') {
+                            deferred.resolve(resp.data);
+                        } else if (resp.code === '400010') {
+                            Native.run('umengLog', ['event', 'detail', 'InsufficientBalance']);
+                            deferred.reject(resp)
+                            $ionicPopup.confirm({
+                                title: '余额不足',
+                                template: '',
+                                okText: '充值',
+                                cancelText: '取消'
+                            }).then(function(res) {
+                                if (res) {
+                                    Native.run('recharge', []);
+                                    Native.run('umengLog', ['event', 'detail', 'Recharge']);
+                                }
+                            });
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力，调整到一个信号好的方向再试一下吧',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力，调整到一个信号好的方向再试一下吧',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -474,71 +483,73 @@ angular.module('starter.services', [])
             }
         },
         reload: function() {
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $ionicLoading.show();
-            $http.post(PHP_URL + 'appApi/get_user_info.json', {
-                    auth: userInfo.auth
-                })
-                .success(function(resp) {
-                    console.log(resp)
-                    if (resp.status === 'success') {
-                        localStorageService.set('patient', resp.data);
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(PHP_URL + 'appApi/get_user_info.json', {
+                        auth: userInfo.auth
+                    })
+                    .success(function(resp) {
+                        console.log(resp)
+                        if (resp.status === 'success') {
+                            localStorageService.set('patient', resp.data);
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         },
         update: function(nickname, sex, birthday, is_own, disease, realname, telphone) {
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             var formatBirthday = new Date(birthday).format('yyyy-MM-dd');
             $ionicLoading.show();
-            $http.post(PHP_URL + 'huanzhe/change_info.json', {
-                    auth: userInfo.auth,
-                    nickname: nickname,
-                    sex: sex,
-                    birthday: formatBirthday,
-                    is_own: is_own,
-                    disease: disease,
-                    realname: realname,
-                    telphone: telphone
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.status === 'success') {
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(PHP_URL + 'huanzhe/change_info.json', {
+                        auth: userInfo.auth,
+                        nickname: nickname,
+                        sex: sex,
+                        birthday: formatBirthday,
+                        is_own: is_own,
+                        disease: disease,
+                        realname: realname,
+                        telphone: telphone
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.status === 'success') {
+                            deferred.resolve(resp.data);
+                        } else {
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
+                        deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力，调整到一个信号好的方向再试一下吧',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力，调整到一个信号好的方向再试一下吧',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -559,34 +570,35 @@ angular.module('starter.services', [])
             }
         },
         reload: function() {
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
             $ionicLoading.show();
-            $http.post(PHP_URL + 'huanzhe/get_myzhuli.json', {
-                    auth: userInfo.auth
-                })
-                .success(function(resp) {
-                    if (resp.status === 'success') {
-                        localStorageService.set('assistant', resp.data);
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(PHP_URL + 'huanzhe/get_myzhuli.json', {
+                        auth: userInfo.auth
+                    })
+                    .success(function(resp) {
+                        if (resp.status === 'success') {
+                            localStorageService.set('assistant', resp.data);
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -607,39 +619,40 @@ angular.module('starter.services', [])
         },
         reload: function() {
             var deferred = $q.defer();
-            var userInfo = Native.getAuth('patient');
             $ionicLoading.show();
-            $http.post(JAVA_URL + 'account/app/rechargeDetailPage.htm', {
-                    sign: 'c271a28eeb17d04662d7b6b82dd03ee1',
-                    userId: userInfo.patientId,
-                    userName: userInfo.patientName,
-                    sortTarget: 0,
-                    pageSize: 9999,
-                    pageNo: 1,
-                    underThePlatform: '00'
-                })
-                .success(function(resp) {
-                    if (resp.code === '0') {
-                        localStorageService.set('recharge', resp.data);
-                        deferred.resolve(resp.data);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'account/app/rechargeDetailPage.htm', {
+                        sign: 'c271a28eeb17d04662d7b6b82dd03ee1',
+                        userId: userInfo.patientId,
+                        userName: userInfo.patientName,
+                        sortTarget: 0,
+                        pageSize: 9999,
+                        pageNo: 1,
+                        underThePlatform: '00'
+                    })
+                    .success(function(resp) {
+                        if (resp.code === '0') {
+                            localStorageService.set('recharge', resp.data);
+                            deferred.resolve(resp.data);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -650,31 +663,32 @@ angular.module('starter.services', [])
 .factory('ServiceServ', function($http, $q, $ionicPopup, localStorageService) {
     return {
         query: function() {
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
-            $http.post(JAVA_URL + 'product/app/getBuyProductServiceByPatientId.htm', {
-                    patientId: userInfo.patientId,
-                    sign: '71b9333745f6046f7880e6e543836df3'
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.code === '0') {
-                        localStorageService.set('service', resp.data);
-                        deferred.resolve(resp);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/getBuyProductServiceByPatientId.htm', {
+                        patientId: userInfo.patientId,
+                        sign: '71b9333745f6046f7880e6e543836df3'
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.code === '0') {
+                            localStorageService.set('service', resp.data);
+                            deferred.resolve(resp);
+                        } else {
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
+                        }
+                    })
+                    .error(function(resp, status, headers, config) {
+                        deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                })
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -683,34 +697,35 @@ angular.module('starter.services', [])
 .factory('ReservationServ', function($http, $q, $ionicPopup, localStorageService) {
     return {
         query: function() {
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
-            $http.post(JAVA_URL + 'product/app/getSubscribeListByPatientId.htm', {
-                    patientId: userInfo.patientId,
-                    sign: '0f0b0126ab30d0c0f6ab3610e2918c35'
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.code === '0') {
-                        for (var i in resp.data) {
-                            resp.data[i].datetime = new Date(resp.data[i].subscribeTime.replace(/-/g, '/')).format('MM月dd日') + (resp.data[i].amOrPm == 0 ? '上午' : '下午');
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/getSubscribeListByPatientId.htm', {
+                        patientId: userInfo.patientId,
+                        sign: '0f0b0126ab30d0c0f6ab3610e2918c35'
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.code === '0') {
+                            for (var i in resp.data) {
+                                resp.data[i].datetime = new Date(resp.data[i].subscribeTime.replace(/-/g, '/')).format('MM月dd日') + (resp.data[i].amOrPm == 0 ? '上午' : '下午');
+                            }
+                            localStorageService.set('reservation', resp.data);
+                            deferred.resolve(resp.data);
+                        } else {
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
                         }
-                        localStorageService.set('reservation', resp.data);
-                        deferred.resolve(resp.data);
-                    } else {
+                    })
+                    .error(function(resp, status, headers, config) {
+                        deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                })
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -720,54 +735,55 @@ angular.module('starter.services', [])
     return {
         sendReward: function(productId, productCount) {
             $ionicLoading.show();
-            var userInfo = Native.getAuth('patient');
             var deferred = $q.defer();
-            $http.post(JAVA_URL + 'product/app/buyAdmireProduct.htm', {
-                    sign: '71c3756cdf32389e2d0a172099f4e0d6',
-                    doctorId: userInfo.doctorId,
-                    doctorName: userInfo.doctorName,
-                    doctorNickName: userInfo.doctorNickName,
-                    patientId: userInfo.patientId,
-                    patientName: userInfo.patientName,
-                    patientNickName: userInfo.patientNickName,
-                    productCount: productCount,
-                    productId: productId,
-                    userPwd: '123456'
-                })
-                .success(function(resp, status, headers, config) {
-                    if (resp.code === '0') {
-                        deferred.resolve(resp);
-                    } else if (resp.code === '400010') {
-                        Native.run('umengLog', ['event', 'detail', 'InsufficientBalance']);
-                        deferred.reject(resp)
-                        $ionicPopup.confirm({
-                            title: '余额不足',
-                            template: '',
-                            okText: '充值',
-                            cancelText: '取消'
-                        }).then(function(res) {
-                            if (res) {
-                                Native.run('recharge', []);
-                                Native.run('umengLog', ['event', 'detail', 'Recharge']);
-                            }
-                        });
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(JAVA_URL + 'product/app/buyAdmireProduct.htm', {
+                        sign: '71c3756cdf32389e2d0a172099f4e0d6',
+                        doctorId: userInfo.doctorId,
+                        doctorName: userInfo.doctorName,
+                        doctorNickName: userInfo.doctorNickName,
+                        patientId: userInfo.patientId,
+                        patientName: userInfo.patientName,
+                        patientNickName: userInfo.patientNickName,
+                        productCount: productCount,
+                        productId: productId,
+                        userPwd: '123456'
+                    })
+                    .success(function(resp, status, headers, config) {
+                        if (resp.code === '0') {
+                            deferred.resolve(resp);
+                        } else if (resp.code === '400010') {
+                            Native.run('umengLog', ['event', 'detail', 'InsufficientBalance']);
+                            deferred.reject(resp)
+                            $ionicPopup.confirm({
+                                title: '余额不足',
+                                template: '',
+                                okText: '充值',
+                                cancelText: '取消'
+                            }).then(function(res) {
+                                if (res) {
+                                    Native.run('recharge', []);
+                                    Native.run('umengLog', ['event', 'detail', 'Recharge']);
+                                }
+                            });
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.data
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.data
+                            title: '网络不给力，调整到一个信号好的方向再试一下吧',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力，调整到一个信号好的方向再试一下吧',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         }
     }
@@ -805,40 +821,41 @@ angular.module('starter.services', [])
 })
 
 .factory('CommentServ', function($http, $q, $ionicPopup, $ionicLoading, localStorageService) {
-    var userInfo = Native.getAuth('patient');
     return {
         hasmore: true,
         curPage: 1,
         reload: function(id, page) {
             var deferred = $q.defer();
-            $http.post(MSG_URL + 'app_api/get_comment_list', {
-                    auth: userInfo.auth,
-                    userid: id,
-                    page: page
-                })
-                .success(function(resp) {
-                    if (resp.code === 200) {
-                        var ls = 'comment' + id;
-                        localStorageService.set(ls, resp);
-                        deferred.resolve(resp);
-                    } else {
+            Native.getAuth('patient', function(userInfo) {
+                $http.post(MSG_URL + 'app_api/get_comment_list', {
+                        auth: userInfo.auth,
+                        userid: id,
+                        page: page
+                    })
+                    .success(function(resp) {
+                        if (resp.code === 200) {
+                            var ls = 'comment' + id;
+                            localStorageService.set(ls, resp);
+                            deferred.resolve(resp);
+                        } else {
+                            deferred.reject(resp)
+                            $ionicPopup.alert({
+                                title: '提示',
+                                template: resp.message
+                            });
+                        }
+                        $ionicLoading.hide();
+                    })
+                    .error(function(resp, status, headers, config) {
                         deferred.reject(resp)
                         $ionicPopup.alert({
-                            title: '提示',
-                            template: resp.message
+                            title: '网络不给力',
+                            template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
+                            okText: '取消'
                         });
-                    }
-                    $ionicLoading.hide();
-                })
-                .error(function(resp, status, headers, config) {
-                    deferred.reject(resp)
-                    $ionicPopup.alert({
-                        title: '网络不给力',
-                        template: '<a style="text-align:center;" href="javascript:location.reload()">点击这里刷新再试试</a>',
-                        okText: '取消'
-                    });
-                    $ionicLoading.hide();
-                })
+                        $ionicLoading.hide();
+                    })
+            });
             return deferred.promise;
         }
     }

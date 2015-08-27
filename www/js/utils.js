@@ -3,13 +3,16 @@
     window.Native = window.Native || {};
     (function(Native) {
 
-        Native.getAuth = function(prefix) {
-            _nativeProxy('getAuth', [prefix]);
-            return _getAuth(prefix);
+        Native.getAuth = function(prefix, callback) {
+            var _cb = function(arr) {
+                var userInfo = _getAuth(prefix, arr);
+                callback.call(this, userInfo)
+            }
+            _nativeProxy('getAuth', [prefix], _cb);
         }
 
-        Native.run = function(funcName, paramArr) {
-            _nativeProxy(funcName, paramArr);
+        Native.run = function(funcName, paramArr, callback) {
+            _nativeProxy(funcName, paramArr, callback);
         }
 
         function _nativeProxy(func, paramArr, callback) {
@@ -38,32 +41,32 @@
             return window.NativePlatform;
         }
 
-        function _getAuth(prefix) {
+        function _getAuth(prefix, arr) {
             var userInfo = {};
             switch (prefix) {
                 case 'patient':
-                    userInfo.auth = localStorage.getItem(prefix + '.auth')
-                    userInfo.patientId = localStorage.getItem(prefix + '.patientId')
-                    userInfo.patientName = localStorage.getItem(prefix + '.patientName')
-                    userInfo.patientNickName = localStorage.getItem(prefix + '.patientNickName')
-                    userInfo.patientRealName = localStorage.getItem(prefix + '.patientRealName')
-                    userInfo.doctorId = localStorage.getItem(prefix + '.doctorId')
-                    userInfo.doctorName = localStorage.getItem(prefix + '.doctorName')
-                    userInfo.doctorNickName = localStorage.getItem(prefix + '.doctorNickName')
-                    userInfo.assistantId = localStorage.getItem(prefix + '.assistantId')
+                    userInfo.auth = arr[1];
+                    userInfo.patientId = arr[2];
+                    userInfo.patientName = arr[3];
+                    userInfo.patientNickName = arr[4];
+                    userInfo.patientRealName = arr[5];
+                    userInfo.doctorId = arr[6];
+                    userInfo.doctorName = arr[7];
+                    userInfo.doctorNickName = arr[8];
+                    userInfo.assistantId = arr[9];
                     break;
                 case 'doctor':
-                    userInfo.auth = localStorage.getItem(prefix + '.auth')
-                    userInfo.doctorId = localStorage.getItem(prefix + '.doctorId')
-                    userInfo.doctorName = localStorage.getItem(prefix + '.doctorName')
-                    userInfo.doctorNickName = localStorage.getItem(prefix + '.doctorNickName')
-                    userInfo.assistantId = localStorage.getItem(prefix + '.assistantId')
+                    userInfo.auth = arr[1];
+                    userInfo.doctorId = arr[2];
+                    userInfo.doctorName = arr[3];
+                    userInfo.doctorNickName = arr[4];
+                    userInfo.assistantId = arr[5];
                     break;
                 case 'assistant':
-                    userInfo.auth = localStorage.getItem(prefix + '.auth')
-                    userInfo.assistantId = localStorage.getItem(prefix + '.assistantId')
-                    userInfo.assistantName = localStorage.getItem(prefix + '.assistantName')
-                    userInfo.assistantNickName = localStorage.getItem(prefix + '.assistantNickName')
+                    userInfo.auth = arr[1];
+                    userInfo.assistantId = arr[2];
+                    userInfo.assistantName = arr[3];
+                    userInfo.assistantNickName = arr[4];
                     break;
             }
             return userInfo;

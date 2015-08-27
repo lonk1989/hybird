@@ -22,3 +22,7 @@ angular.module('starter.directives', [])
         })
     }
 })
+
+.directive('historyBackBtn', function() {
+    
+})

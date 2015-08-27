@@ -1,4 +1,7 @@
 <ion-view view-title="{{tit}}">
+    <ion-nav-buttons side="left">
+        <button class="button button-clear icon" ng-class="{false :'ion-android-arrow-back', true: 'ion-ios-arrow-back'}[isIOS]" ng-show="showHistoryBack" ng-click="historyBack()"></button>
+    </ion-nav-buttons>
     <ion-content>
         <div class="list card">
             <div class="item item-divider">{{logic.subject}}</div>

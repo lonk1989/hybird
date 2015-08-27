@@ -15,15 +15,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
             cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
             cordova.plugins.Keyboard.disableScroll(true);
-            Native.run('getAuth', []);
+            Native.run('umengLog', ['view', 'detail', $state.current.name]);
         }
         if (window.StatusBar) {
             // org.apache.cordova.statusbar required
             StatusBar.styleLightContent();
         }
-    });
-    $rootScope.$on('$stateChangeStart', function(event, next) {
-        Native.run('umengLog', ['view', 'detail', next.name]);
     });
 })
 
@@ -443,4 +440,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     $rootScope.JAVA_URL = JAVA_URL;
     $rootScope.ticket = ionic.Platform.isIOS() ? '元' : '张健康券';
     $rootScope.isIOS = ionic.Platform.isIOS();
+    $rootScope.historyBack = function() {
+        Native.run('historyBack', []);
+    }
 })

@@ -1,4 +1,7 @@
 <ion-view view-title="我的医生">
+    <ion-nav-buttons side="left">
+        <button class="button button-clear icon" ng-class="{false :'ion-android-arrow-back', true: 'ion-ios-arrow-back'}[isIOS]" ng-show="showHistoryBack" ng-click="historyBack()"></button>
+    </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <button class="button" ng-click="changeDoctor()">更换医生</button>
     </ion-nav-buttons>

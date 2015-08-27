@@ -43245,6 +43245,7 @@ function($rootScope, $state, $location, $window, $timeout, $ionicViewSwitcher, $
     enabledBack: function(view) {
       var backView = getBackView(view);
       return !!(backView && backView.historyId === view.historyId);
+      // return true;
     },
 
     /**
@@ -43790,7 +43791,7 @@ IonicModule
 
     backButton: {
       icon: 'ion-ios-arrow-back',
-      text: 'Back',
+      text: '返回',
       previousTitleText: true
     },
 
@@ -45662,7 +45663,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
   function showAlert(opts) {
     return showPopup(extend({
       buttons: [{
-        text: opts.okText || 'OK',
+        text: opts.okText || '确定',
         type: opts.okType || 'button-positive',
         onTap: function() {
           return true;
@@ -45674,11 +45675,11 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
   function showConfirm(opts) {
     return showPopup(extend({
       buttons: [{
-        text: opts.cancelText || 'Cancel',
+        text: opts.cancelText || '取消',
         type: opts.cancelType || 'button-default',
         onTap: function() { return false; }
       }, {
-        text: opts.okText || 'OK',
+        text: opts.okText || '确定',
         type: opts.okType || 'button-positive',
         onTap: function() { return true; }
       }]
@@ -45698,11 +45699,11 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
         '" placeholder="' + (opts.inputPlaceholder || '') + '">',
       scope: scope,
       buttons: [{
-        text: opts.cancelText || 'Cancel',
+        text: opts.cancelText || '取消',
         type: opts.cancelType || 'button-default',
         onTap: function() {}
       }, {
-        text: opts.okText || 'OK',
+        text: opts.okText || '确定',
         type: opts.okType || 'button-positive',
         onTap: function() {
           return scope.data.response || '';

@@ -1,4 +1,7 @@
 <ion-view view-title="知识">
+    <ion-nav-buttons side="left">
+        <button class="button button-clear icon" ng-class="{false :'ion-android-arrow-back', true: 'ion-ios-arrow-back'}[isIOS]" ng-show="showHistoryBack" ng-click="historyBack()"></button>
+    </ion-nav-buttons>
   <ion-content>
     <div class="list card" ng-repeat="row in table.rows">
       <div class="item item-divider">{{row.title}}</div>
@@ -8,5 +11,6 @@
         </a>
       </div>
     </div>
+        <p class="empty-title" ng-hide="table.rows.length>0">暂无任何内容</p>
   </ion-content>
 </ion-view>
